@@ -1,6 +1,5 @@
 const Resume = require('../models/Resume')
 const Groq = require('groq-sdk')
-const fs = require('fs')
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
@@ -17,7 +16,7 @@ const analyzeResume = async (req, res) => {
     if (req.file.mimetype === 'application/pdf') {
       fileContent = 'PDF resume uploaded - candidate has professional experience in software development with relevant technical skills.'
     } else {
-      fileContent = fs.readFileSync(req.file.path, 'utf8')
+      fileContent = req.file.buffer.toString('utf8')
     }
 
     console.log('Calling Groq API...')
@@ -47,8 +46,6 @@ Resume: ${fileContent.substring(0, 1000)}`
       analysis: analysis,
       atsScore: 75
     })
-
-    fs.unlinkSync(req.file.path)
 
     res.status(201).json({ resume, analysis })
 
